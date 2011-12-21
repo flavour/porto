@@ -321,6 +321,12 @@ if populate > 0:
             width = 44,
             image = "gis_marker.image.Trans_Bridge_S1.png"
         )
+        fire_station = table.insert(
+            name = "fire_station",
+            height = 40,
+            width = 40,
+            image = "gis_marker.image.Fire_Station_S1.png"
+        )
         table.insert(
             name = "helicopter",
             height = 33,
@@ -347,9 +353,9 @@ if populate > 0:
         )
         water = table.insert(
             name = "water",
-            height = 33,
-            width = 44,
-            image = "gis_marker.image.Water_Supply_Infrastructure_Theme_S1.png"
+            height = 40,
+            width = 40,
+            image = "gis_marker.image.Fire_Hydrant_S1.png"
         )
         volunteer = table.insert(
             name = "volunteer",
@@ -608,13 +614,32 @@ if populate > 0:
     table = db.gis_layer_feature
     if not db(table.id > 0).select(table.id, limitby=(0, 1)).first():
         table.insert(
-            name = "Incident Reports",
+            name = "Fires",
             module = "irs",
             resource = "ireport",
-            popup_label = "Incident",
-            popup_fields = "name/category",
+            filter = "ireport.category=1100",
+            popup_label = "Fire",
+            popup_fields = "name",
             # Default (but still better to define here as otherwise each feature needs to check it's feature_class)
             marker_id = marker_red
+        )
+        table.insert(
+            name = "Rescues",
+            module = "irs",
+            resource = "ireport",
+            filter = "ireport.category=8201",
+            popup_label = "Rescue",
+            popup_fields = "name",
+            marker_id = marker_green
+        )
+        table.insert(
+            name = "Hazmats",
+            module = "irs",
+            resource = "ireport",
+            filter = "ireport.category=6102",
+            popup_label = "Hazmat",
+            popup_fields = "name",
+            marker_id = marker_yellow
         )
         table.insert(
             name = "Hospitals",
@@ -623,23 +648,39 @@ if populate > 0:
             popup_label = "Hospital",
             marker_id = hospital
         )
+        #table.insert(
+        #    name = "Shelters",
+        #    module = "cr",
+        #    resource = "shelter",
+        #    popup_label = "Shelter",
+        #    popup_fields = "name/organisation_id/capacity",
+        #    marker_id = shelter
+        #)
+        #table.insert(
+        #    name = "Offices",
+        #    module = "org",
+        #    resource = "office",
+        #    comments = "All Active Offices",
+        #    filter = "office.type=None,1,2,3,4&office.obsolete=False",
+        #    popup_label = "Office",
+        #    popup_fields = "name/organisation_id",
+        #    marker_id = office
+        #)
         table.insert(
-            name = "Shelters",
-            module = "cr",
-            resource = "shelter",
-            popup_label = "Shelter",
-            popup_fields = "name/organisation_id/capacity",
-            marker_id = shelter
+            name = "Fire Stations",
+            module = "fire",
+            resource = "station",
+            popup_label = "Fire Station",
+            popup_fields = "name",
+            marker_id = fire_station
         )
         table.insert(
-            name = "Offices",
-            module = "org",
-            resource = "office",
-            comments = "All Active Offices",
-            filter = "office.type=None,1,2,3,4&office.obsolete=False",
-            popup_label = "Office",
-            popup_fields = "name/organisation_id",
-            marker_id = office
+            name = "Water Points",
+            module = "fire",
+            resource = "water_source",
+            popup_label = "Water Point",
+            popup_fields = "name",
+            marker_id = water
         )
         #table.insert(
         #    name = "Requests",
@@ -648,22 +689,22 @@ if populate > 0:
         #    popup_label = "Request",
         #    marker_id = marker_yellow
         #)
-        table.insert(
-            name = "Assessments",
-            module = "assess",
-            resource = "rat",
-            popup_label = "Assessment",
-            popup_fields = "date/staff_id",
-            marker_id = marker_green
-        )
-        table.insert(
-            name = "Activities",
-            module = "project",
-            resource = "activity",
-            popup_label = "Activity",
-            popup_fields = "name/organisation_id/sector_id",
-            marker_id = activity
-        )
+        #table.insert(
+        #    name = "Assessments",
+        #    module = "assess",
+        #    resource = "rat",
+        #    popup_label = "Assessment",
+        #    popup_fields = "date/staff_id",
+        #    marker_id = marker_green
+        #)
+        #table.insert(
+        #    name = "Activities",
+        #    module = "project",
+        #    resource = "activity",
+        #    popup_label = "Activity",
+        #    popup_fields = "name/organisation_id/sector_id",
+        #    marker_id = activity
+        #)
         #table.insert(
         #    name = "People",
         #    module = "pr",
@@ -671,43 +712,43 @@ if populate > 0:
         #    popup_label = "Person",
         #    marker_id = person
         #)
-        table.insert(
-            name = "Staff",
-            module = "hrm",
-            resource = "human_resource",
-            comments = "All Active Staff",
-            filter = "human_resource.type=1&human_resource.status=1",
-            popup_label = "Staff",
-            popup_fields = "person_id/job_title/organisation_id",
-            marker_id = person
-        )
-        table.insert(
-            name = "Volunteers",
-            module = "hrm",
-            resource = "human_resource",
-            comments = "All Active Volunteers",
-            filter = "human_resource.type=2&human_resource.status=1",
-            popup_label = "Volunteer",
-            popup_fields = "person_id/job_title/organisation_id",
-            marker_id = volunteer
-        )
-        table.insert(
-            name = "Warehouses",
-            module = "org",
-            resource = "office",
-            comments = "All Active Warehouses",
-            filter = "office.type=5&office.obsolete=False",
-            popup_label = "Warehouse",
-            popup_fields = "name/organisation_id",
-            marker_id = office
-        )
-        table.insert(
-            name = "Assets",
-            module = "asset",
-            resource = "asset",
-            popup_label = "Asset",
-            popup_fields = "item_id/number", # Would like Status & Condition here, but currently they're a Join away
-        )
+        #table.insert(
+        #    name = "Staff",
+        #    module = "hrm",
+        #    resource = "human_resource",
+        #    comments = "All Active Staff",
+        #    filter = "human_resource.type=1&human_resource.status=1",
+        #    popup_label = "Staff",
+        #    popup_fields = "person_id/job_title/organisation_id",
+        #    marker_id = person
+        #)
+        #table.insert(
+        #    name = "Volunteers",
+        #    module = "hrm",
+        #    resource = "human_resource",
+        #    comments = "All Active Volunteers",
+        #    filter = "human_resource.type=2&human_resource.status=1",
+        #    popup_label = "Volunteer",
+        #    popup_fields = "person_id/job_title/organisation_id",
+        #    marker_id = volunteer
+        #)
+        #table.insert(
+        #    name = "Warehouses",
+        #    module = "org",
+        #    resource = "office",
+        #    comments = "All Active Warehouses",
+        #    filter = "office.type=5&office.obsolete=False",
+        #    popup_label = "Warehouse",
+        #    popup_fields = "name/organisation_id",
+        #    marker_id = office
+        #)
+        #table.insert(
+        #    name = "Assets",
+        #    module = "asset",
+        #    resource = "asset",
+        #    popup_label = "Asset",
+        #    popup_fields = "item_id/number", # Would like Status & Condition here, but currently they're a Join away
+        #)
         table.insert(
             name = "Vehicles",
             module = "asset",

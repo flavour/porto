@@ -1417,7 +1417,7 @@ class S3Importer(S3CRUD):
             except:
                 pass
             if value:
-                value = S3XML.xml_encode(str(value))
+                value = S3XML.xml_encode(unicode(value))
             else:
                 value = ""
             if f != None and value != None:

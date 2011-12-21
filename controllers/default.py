@@ -125,140 +125,6 @@ def index():
     title = deployment_settings.get_system_name()
     response.title = title
 
-    if deployment_settings.has_module("cr"):
-        s3mgr.load("cr_shelter")
-        SHELTERS = s3.crud_strings["cr_shelter"].subtitle_list
-    else:
-        SHELTERS = ""
-
-    # Menu Boxes
-    menu_btns = [#div, label, app, function
-                ["facility", SHELTERS, "cr", "shelter"],
-                ["facility", T("Warehouses"), "inv", "warehouse"],
-                ["facility", T("Hospitals"), "hms", "hospital"],
-                ["facility", T("Offices"), "org", "office"],
-                ["sit", T("Incidents"), "irs", "ireport"],
-                ["sit", T("Assessments"), "survey", "series"],
-                ["sit", T("Assets"), "asset", "asset"],
-                ["sit", T("Inventory Items"), "inv", "inv_item"],
-                #["dec", T("Gap Map"), "project", "gap_map"],
-                #["dec", T("Gap Report"), "project", "gap_report"],
-                ["dec", T("Requests"), "req", "req"],
-                ["res", T("Projects"), "project", "project"],
-                ["res", T("Activities"), "project", "site"],
-                ["res", T("Commitments"), "req", "commit"],
-                ["res", T("Sent Shipments"), "inv", "send"],
-                ["res", T("Received Shipments"), "inv", "recv"],
-                ]
-
-    # Change to (Mitigation)/Preparedness/Response/Recovery?
-    menu_divs = {"facility": DIV( H3(T("Facilities")),
-                                 _id = "facility_box", _class = "menu_box"),
-                 "sit": DIV( H3(T("Situation")),
-                              _id = "menu_div_sit", _class = "menu_div"),
-                 "dec": DIV( H3(T("Decision")),
-                              _id = "menu_div_dec", _class = "menu_div"),
-                 "res": DIV( H3(T("Response")),
-                              _id = "menu_div_res", _class = "menu_div"),
-                }
-
-    for div, label, app, function in menu_btns:
-        if deployment_settings.has_module(app):
-            # @ToDo: Also check permissions (e.g. for anonymous users)
-            menu_divs[div].append(A( DIV(label,
-                                         _class = "menu-btn-r"),
-                                     _class = "menu-btn-l",
-                                     _href = URL(app,function)
-                                    )
-                                 )
-
-    div_arrow = DIV(IMG(_src = "/%s/static/img/arrow_blue_right.png" % \
-                               request.application),
-                          _class = "div_arrow")
-    sit_dec_res_box = DIV(menu_divs["sit"],
-                          div_arrow,
-                          menu_divs["dec"],
-                          div_arrow,
-                          menu_divs["res"],
-                          _id = "sit_dec_res_box",
-                          _class = "menu_box fleft swidth"
-                     #div_additional,
-                    )
-    facility_box  = menu_divs["facility"]
-    facility_box.append( A( IMG(_src = "/%s/static/img/map_icon_128.png" % \
-                                    request.application),
-                            _href = URL(c="gis", f="index"),
-                            _title = T("Map")
-                            )
-                        )
-
-    datatable_ajax_source = ""
-    # Check logged in AND permissions
-    if AUTHENTICATED in session.s3.roles and \
-       auth.s3_has_permission("read", db.org_organisation):
-        org_items = organisation()
-        datatable_ajax_source = "/%s/default/organisation.aaData" % \
-                                request.application
-        response.s3.actions = None
-        response.view = "default/index.html"
-        auth.permission.controller = "org"
-        auth.permission.function = "site"
-        permitted_facilities = auth.permission.permitted_facilities(redirect_on_error=False)
-        manage_facility_box = ""
-        if permitted_facilities:
-            facility_list = s3_represent_facilities(db, permitted_facilities,
-                                                    link=False)
-            facility_opts = [OPTION(opt[1], _value = opt[0])
-                             for opt in facility_list]
-            if facility_list:
-                manage_facility_box = DIV(H3(T("Manage Your Facilities")),
-                                    SELECT(_id = "manage_facility_select",
-                                            _style = "max-width:400px;",
-                                            *facility_opts
-                                            ),
-                                    A(T("Go"),
-                                        _href = URL(c="default", f="site",
-                                                    args=[facility_list[0][0]]),
-                                        #_disabled = "disabled",
-                                        _id = "manage_facility_btn",
-                                        _class = "action-btn"
-                                        ),
-                                    _id = "manage_facility_box",
-                                    _class = "menu_box fleft")
-                response.s3.jquery_ready.append( """
-$('#manage_facility_select').change(function() {
-    $('#manage_facility_btn').attr('href', S3.Ap.concat('/default/site/',  $('#manage_facility_select').val()));
-})""" )
-            else:
-                manage_facility_box = DIV()
-
-        org_box = DIV( H3(T("Organizations")),
-                       A(T("Add Organization"),
-                          _href = URL(c="org", f="organisation",
-                                      args=["create"]),
-                          _id = "add-btn",
-                          _class = "action-btn",
-                          _style = "margin-right: 10px;"),
-                        org_items["items"],
-                        _id = "org_box",
-                        _class = "menu_box fleft"
-                        )
-    else:
-        manage_facility_box = ""
-        org_box = ""
-
-    # @ToDo: Replace this with an easily-customisable section on the homepage
-    #settings = db(db.s3_setting.id == 1).select(limitby=(0, 1)).first()
-    #if settings:
-    #    admin_name = settings.admin_name
-    #    admin_email = settings.admin_email
-    #    admin_tel = settings.admin_tel
-    #else:
-    #    # db empty and prepopulate is false
-    #    admin_name = T("Sahana Administrator").xml(),
-    #    admin_email = "support@Not Set",
-    #    admin_tel = T("Not Set").xml(),
-
     # Login/Registration forms
     self_registration = deployment_settings.get_security_self_registration()
     registered = False
@@ -329,52 +195,24 @@ $('#manage_facility_select').change(function() {
     });""" % post_script
             response.s3.jquery_ready.append(register_script)
 
-    if deployment_settings.frontpage.rss:
-        response.s3.external_stylesheets.append( "http://www.google.com/uds/solutions/dynamicfeed/gfdynamicfeedcontrol.css" )
-        response.s3.scripts.append( "http://www.google.com/jsapi?key=notsupplied-wizard" )
-        response.s3.scripts.append( "http://www.google.com/uds/solutions/dynamicfeed/gfdynamicfeedcontrol.js" )
-        counter = 0
-        feeds = ""
-        for feed in deployment_settings.frontpage.rss:
-            counter += 1
-            feeds = "".join((feeds,
-                             "{title: '%s',\n" % feed["title"],
-                             "url: '%s'}" % feed["url"]))
-            # Don't add a trailing comma for old IEs
-            if counter != len(deployment_settings.frontpage.rss):
-                feeds += ",\n"
-        feed_control = "".join(("""
-function LoadDynamicFeedControl() {
-  var feeds = [
-    """, feeds, """
-  ];
-  var options = {
-    // milliseconds before feed is reloaded (5 minutes)
-    feedCycleTime : 300000,
-    numResults : 5,
-    stacked : true,
-    horizontal : false,
-    title : '""", str(T("News")), """'
-  };
-  new GFdynamicFeedControl(feeds, 'feed-control', options);
-}
-// Load the feeds API and set the onload callback.
-google.load('feeds', '1');
-google.setOnLoadCallback(LoadDynamicFeedControl);"""))
-        response.s3.js_global.append( feed_control )
+    incidents = DIV(A(DIV(T("Fire"),
+                          _style="background-color:red;",
+                          _class="question-container fleft"),
+                      _href=URL(c="irs", f="ireport", args=["create"],
+                                vars={"type":"fire"})),
+                    A(DIV(T("Rescue"),
+                          _style="background-color:green;",
+                          _class="question-container fleft"),
+                      _href=URL(c="irs", f="ireport", args=["create"],
+                                vars={"type":"rescue"})),
+                    A(DIV(T("Hazmat"),
+                          _style="background-color:yellow;",
+                          _class="question-container fleft"),
+                      _href=URL(c="irs", f="ireport", args=["create"],
+                                vars={"type":"hazmat"})))
 
     return dict(title = title,
-
-                sit_dec_res_box = sit_dec_res_box,
-                facility_box = facility_box,
-                manage_facility_box = manage_facility_box,
-                org_box = org_box,
-
-                r = None, # Required for dataTable to work
-                datatable_ajax_source = datatable_ajax_source,
-                #admin_name=admin_name,
-                #admin_email=admin_email,
-                #admin_tel=admin_tel,
+                incidents=incidents,
                 self_registration=self_registration,
                 registered=registered,
                 login_form=login_form,

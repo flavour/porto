@@ -99,18 +99,9 @@
                 <xsl:value-of select="$OrgName"/>
             </xsl:attribute>
             <data field="name"><xsl:value-of select="$OrgName"/></data>
-            <xsl:choose>
-                <xsl:when test="col[@field='Acronym']!=''">
-                    <data field="acronym"><xsl:value-of select="col[@field='Acronym']"/></data>
-                </xsl:when>
-                <!-- this may be totally wrong if the person uses hotmail.com or the like -->
-                <xsl:when test="col[@field='Email']!=''">
-                    <xsl:variable name="OrgAcronym"
-                                  select="substring-before(substring-after(col[@field='Email'],'@'),'.')"/>
-                    <data field="acronym"><xsl:value-of select="$OrgAcronym"/></data>
-                </xsl:when>
-                <!-- no default ! -->
-            </xsl:choose>
+            <xsl:if test="col[@field='Acronym']!=''">
+                <data field="acronym"><xsl:value-of select="col[@field='Acronym']"/></data>
+            </xsl:if>
         </resource>
 
     </xsl:template>

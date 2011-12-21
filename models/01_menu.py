@@ -1160,7 +1160,6 @@ s3_menu_dict = {
     "admin": {
         "menu": admin_menu_options
     },
-
 }
 
 # Duplicate menus - some controllers might re-use menu defined in certain models Eg. inv, supply

@@ -1367,6 +1367,7 @@ class S3Search(S3CRUD):
                                                 format=representation) or [])
                     aadata.update(iTotalRecords=totalrows,
                                   iTotalDisplayRecords=totalrows)
+                    print aadata
                     response.aadata = json(aadata)
                     response.s3.start = 0
                     response.s3.limit = 20

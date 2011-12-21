@@ -191,7 +191,7 @@ def comments_represent(text, showlink=True):
 
 # -----------------------------------------------------------------------------
 # Make URLs clickable
-s3_url_represent = lambda url: (url and [A(url, _href=url, _target="blank")] or [""])[0]
+s3_url_represent = lambda url: (url and [str(A(url, _href=url, _target="blank"))] or [""])[0]
 
 # -----------------------------------------------------------------------------
 # Date/Time representation functions

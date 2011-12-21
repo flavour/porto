@@ -204,11 +204,11 @@ if deployment_settings.has_module("irs"):
         #
 
         # Porto codes
-        #irs_incident_type_opts = {
-        #    1100:T("Fire"),
-        #    6102:T("Hazmat"),
-        #    8201:T("Rescue")
-        #}
+        irs_incident_type_opts = {
+            1100:T("Fire"),
+            6102:T("Hazmat"),
+            8201:T("Rescue")
+        }
         resourcename = "ireport"
         tablename = "%s_%s" % (module, resourcename)
         table = db.define_table(tablename,
@@ -221,10 +221,10 @@ if deployment_settings.has_module("irs"):
                                 Field("category", label = T("Category"),
                                       # The full set available to Admins & Imports/Exports
                                       # (users use the subset by over-riding this in the Controller)
-                                      requires = IS_NULL_OR(IS_IN_SET_LAZY(lambda: \
-                                         sort_dict_by_values(irs_incident_type_opts))),
+                                      #requires = IS_NULL_OR(IS_IN_SET_LAZY(lambda: \
+                                      #   sort_dict_by_values(irs_incident_type_opts))),
                                       # Use this instead if a simpler set of Options required
-                                      #requires = IS_NULL_OR(IS_IN_SET(irs_incident_type_opts)),
+                                      requires = IS_NULL_OR(IS_IN_SET(irs_incident_type_opts)),
                                       represent = lambda opt: \
                                             irs_incident_type_opts.get(opt, opt)),
                                 # Better to use a plain text field than to clutter the PR
@@ -575,9 +575,8 @@ if deployment_settings.has_module("irs"):
                                              human_resource_id=person.id)
                 
             s3mgr.configure("irs_ireport",
-                            # Porto-specific currently
-                            #create_onaccept=ireport_onaccept,
-                            #create_next=URL(args=["[id]", "human_resource"]),
+                            create_onaccept=ireport_onaccept,
+                            create_next=URL(args=["[id]", "human_resource"]),
                             update_next=URL(args=["[id]", "update"]))
 
             if deployment_settings.has_module("hrm"):

@@ -159,7 +159,8 @@ class AuthS3(Auth):
                                       cr_shelter = shelter,
                                       org_office = T("Office"),
                                       hms_hospital = T("Hospital"),
-                                      project_site = T("Project Site")
+                                      project_site = T("Project Site"),
+                                      fire_station = T("Fire Station")
                                       )
 
     # -------------------------------------------------------------------------
